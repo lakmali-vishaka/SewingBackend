@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
@@ -14,8 +13,7 @@ const PORT = process.env.PORT || 8070;
 
 // Use middleware
 app.use(cors());
-app.use(bodyParser.json());
-app.use(express.json());
+app.use(express.json()); // Use the built-in express.json()
 
 // MongoDB connection string from environment variables
 const URL = process.env.MONGODB_URL;
@@ -23,7 +21,7 @@ const URL = process.env.MONGODB_URL;
 // Connect to MongoDB
 mongoose.connect(URL, {
   useNewUrlParser: true,
-  useUnifiedTopology: true,  // Added to handle MongoDB deprecations
+  useUnifiedTopology: true, // Added to handle MongoDB deprecations
 });
 
 // Open the MongoDB connection
@@ -37,7 +35,9 @@ const tailorRouter = require("./routes/tailor.js");
 const sewingItemRoutes = require('./routes/sewingItem');
 const certificateRoutes = require('./routes/certificate');
 const userRoutes = require('./routes/user');
-
+const contactRouter = require('./routes/contact'); 
+const videoRouter = require('./routes/video'); 
+const appointmentRouter = require('./routes/appointments'); 
 
 
 // Use routes
@@ -46,8 +46,16 @@ app.use('/uploads', express.static('uploads'));
 app.use('/sewingItem', sewingItemRoutes);
 app.use('/certificate', certificateRoutes);
 app.use('/user', userRoutes);
+app.use('/contact', contactRouter); 
+app.use('initialize', videoRouter); 
+app.use('/video', videoRouter); 
+app.use('/appointments', appointmentRouter); 
 
-
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 
 // Start the server
 app.listen(PORT, () => {
